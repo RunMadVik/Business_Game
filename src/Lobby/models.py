@@ -11,6 +11,9 @@ class Lobby(models.Model):
     name = models.CharField(max_length=50)
     password = models.CharField(max_length=64)
 
+    def __str__(self) -> str:
+        return self.name
+
     class Meta:
         verbose_name_plural = "Lobbies"
 
@@ -19,6 +22,9 @@ class LobbyPlayer(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     lobby = models.ForeignKey(Lobby, on_delete=models.CASCADE)
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return f"{self.player} in lobby {self.lobby}"
 
     def clean(self, *args, **kwargs):
         if LobbyPlayer.objects.filter(lobby_id=self.lobby.id).count() == 4:
