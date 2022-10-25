@@ -12,7 +12,7 @@ class Mapping(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(36)]
     )
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.UUIDField()
     content_object = GenericForeignKey("content_type", "object_id")
 
 

@@ -7,11 +7,78 @@ import django.db.models.deletion
 from django.db import migrations, models
 
 
+def populate_mappings(apps, schema_editor):
+
+    Property = apps.get_model("Stop", "Property")
+    SpecialStop = apps.get_model("Stop", "SpecialStop")
+    Mapping = apps.get_model("Board", "Mapping")
+    ContentType = apps.get_model("contenttypes", "ContentType")
+
+    Properties = Property.objects.all()
+    SpecialStops = SpecialStop.objects.all()
+
+    MAPPINGS = [
+        "Start",
+        "Mumbai",
+        "Water Works",
+        "Railways",
+        "Ahemdabad",
+        "Income Tax",
+        "Indore",
+        "Chance",
+        "Jaipur",
+        "Jail",
+        "Delhi",
+        "Chandigarh",
+        "Electricity",
+        "Bus Company",
+        "Shimla",
+        "Amritsar",
+        "Community Chest",
+        "Srinagar",
+        "Club",
+        "Agra",
+        "Chance",
+        "Kanpur",
+        "Patna",
+        "Darjeeling",
+        "Airways",
+        "Kolkata",
+        "Hyderabad",
+        "Rest House",
+        "Chennai",
+        "Community Chest",
+        "Bangalore",
+        "Wealth Tax",
+        "Mysore",
+        "Pune",
+        "Motor Boat",
+        "Goa",
+    ]
+
+    mappings = []
+    for index, mapping in enumerate(MAPPINGS):
+        content_obj = Properties.filter(name=mapping)
+        if not content_obj.exists():
+            content_obj = SpecialStops.filter(name=mapping)
+
+        mapping_obj = Mapping(
+            content_type=ContentType.objects.get_for_model(content_obj[0]),
+            object_id=content_obj[0].id,
+            place_number=index + 1,
+        )
+        mapping_obj.full_clean()
+        mappings.append(mapping_obj)
+
+    mappings = Mapping.objects.bulk_create(mappings)
+
+
 class Migration(migrations.Migration):
 
     initial = True
 
     dependencies = [
+        ("Stop", "0001_initial"),
         ("contenttypes", "0002_remove_content_type_name"),
     ]
 
@@ -37,7 +104,7 @@ class Migration(migrations.Migration):
                         ]
                     ),
                 ),
-                ("object_id", models.PositiveIntegerField()),
+                ("object_id", models.UUIDField()),
                 (
                     "content_type",
                     models.ForeignKey(
@@ -62,4 +129,5 @@ class Migration(migrations.Migration):
                 ("mappings", models.ManyToManyField(to="Board.mapping")),
             ],
         ),
+        migrations.RunPython(populate_mappings),
     ]
