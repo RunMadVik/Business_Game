@@ -14,3 +14,11 @@ class Mapping(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey("content_type", "object_id")
+
+
+class Board(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    mappings = models.ManyToManyField(Mapping)
+
+    def __str__(self) -> str:
+        return str(self.id)
