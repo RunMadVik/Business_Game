@@ -42,6 +42,8 @@ class Place(models.Model):
     rent_with_two_house = models.DecimalField(max_digits=5, decimal_places=2)
     rent_with_three_house = models.DecimalField(max_digits=5, decimal_places=2)
     rent_with_hotel = models.DecimalField(max_digits=5, decimal_places=2)
+    cost_of_house = models.DecimalField(max_digits=5, decimal_places=2)
+    cost_of_hotel = models.DecimalField(max_digits=5, decimal_places=2)
 
 
 class SpecialStop(models.Model):
