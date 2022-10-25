@@ -27,8 +27,17 @@ class Property(models.Model):
 
 
 class Place(models.Model):
+
+    COLOR_CHOICES = (
+        ("RED", "RED"),
+        ("BLUE", "BLUE"),
+        ("YELLOW", "YELLOW"),
+        ("GREEN", "GREEN"),
+    )
+
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     property = models.OneToOneField(Property, on_delete=models.CASCADE)
+    property_color = models.CharField(max_length=10, choices=COLOR_CHOICES)
     rent_with_one_house = models.DecimalField(max_digits=5, decimal_places=2)
     rent_with_two_house = models.DecimalField(max_digits=5, decimal_places=2)
     rent_with_three_house = models.DecimalField(max_digits=5, decimal_places=2)
