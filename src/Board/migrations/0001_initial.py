@@ -7,11 +7,12 @@ import django.db.models.deletion
 from django.db import migrations, models
 
 
-def populate_mappings(apps, schema_editor):
+def populate_mappings_and_board(apps, schema_editor):
 
     Property = apps.get_model("Stop", "Property")
     SpecialStop = apps.get_model("Stop", "SpecialStop")
     Mapping = apps.get_model("Board", "Mapping")
+    Board = apps.get_model("Board", "Board")
     ContentType = apps.get_model("contenttypes", "ContentType")
 
     Properties = Property.objects.all()
@@ -72,6 +73,10 @@ def populate_mappings(apps, schema_editor):
 
     mappings = Mapping.objects.bulk_create(mappings)
 
+    board = Board()
+    board.save()
+    board.mappings.add(*list(mappings))
+
 
 class Migration(migrations.Migration):
 
@@ -129,5 +134,5 @@ class Migration(migrations.Migration):
                 ("mappings", models.ManyToManyField(to="Board.mapping")),
             ],
         ),
-        migrations.RunPython(populate_mappings),
+        migrations.RunPython(populate_mappings_and_board),
     ]
