@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -10,6 +11,7 @@ class Lobby(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     name = models.CharField(max_length=50)
     password = models.CharField(max_length=64)
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 
     def __str__(self) -> str:
         return self.name
