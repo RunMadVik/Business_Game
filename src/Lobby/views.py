@@ -14,10 +14,13 @@ class LobbyList(APIView):
     class LobbySerializer(serializers.Serializer):
         name = serializers.CharField(max_length=50, required=False)
         password = serializers.CharField(max_length=50, required=False)
+        starting_money = serializers.IntegerField(required=False)
 
     def get(self, request, pk: int = None) -> Response:
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         try:
-            lobby = Lobby.objects.get(pk=pk)
+            lobby = Lobby.objects.get(pk=pk, created_by=request.user)
         except Lobby.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -25,12 +28,20 @@ class LobbyList(APIView):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request) -> Response:
+        if not request.user.is_authenticated:
+            return Response(
+                errors={"Error": "Not an authenticated user"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         serializer = self.LobbySerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         validated_data = serializer.validated_data
         success, lobby = create_lobby(
-            name=validated_data.get("name"), password=validated_data.get("password")
+            user=request.user,
+            name=validated_data.get("name"),
+            password=validated_data.get("password"),
+            starting_money=validated_data.get("starting_money"),
         )
 
         if not success:
@@ -38,4 +49,3 @@ class LobbyList(APIView):
 
         serializer = self.LobbySerializer(lobby)
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-        pass
