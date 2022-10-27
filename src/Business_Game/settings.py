@@ -37,12 +37,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "Users",
     "Player",
     "Stop",
     "Board",
     "Lobby",
     "rest_framework",
 ]
+
+AUTH_USER_MODEL = "Users.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

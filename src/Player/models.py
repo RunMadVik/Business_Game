@@ -1,9 +1,9 @@
 from uuid import uuid4
 
-from django.contrib.auth.models import User
 from django.db import models
 
 from Stop.models import Property
+from Users.models import User
 
 
 class Player(models.Model):

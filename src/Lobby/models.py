@@ -1,10 +1,10 @@
 from uuid import uuid4
 
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 
 from Player.models import Player
+from Users.models import User
 
 
 class Lobby(models.Model):

@@ -1,9 +1,9 @@
 from typing import Optional, Tuple, Union
 
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 from Player.models import Player
+from Users.models import User
 
 
 def create_player(

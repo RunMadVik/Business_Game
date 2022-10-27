@@ -1,12 +1,12 @@
 from typing import Optional, Tuple, Union
 
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 from Lobby.helpers import generate_random_string
 from Lobby.models import Lobby, LobbyPlayer
 from Player.models import Player
 from Player.services import create_player
+from Users.models import User
 
 
 def create_lobby(
