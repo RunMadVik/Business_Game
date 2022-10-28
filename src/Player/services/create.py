@@ -20,6 +20,7 @@ def get_or_create_player(
             name=name or user.get_short_name(),
         )
         try:
+            player.full_clean()
             player.save()
         except ValidationError as error:
             return False, str(error)

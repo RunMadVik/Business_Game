@@ -28,6 +28,7 @@ def get_or_create_lobby(
         created_by=user,
     )
     try:
+        lobby.full_clean()
         lobby.save()
     except ValidationError as error:
         return False, str(error)
