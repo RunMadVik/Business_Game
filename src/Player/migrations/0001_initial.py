@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ("Lobby", "0001_initial"),
         ("Stop", "0002_populate_stops"),
     ]
 
