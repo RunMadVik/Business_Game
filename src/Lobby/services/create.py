@@ -3,47 +3,39 @@ from typing import Optional, Tuple, Union
 from django.core.exceptions import ValidationError
 
 from Lobby.helpers import generate_random_string
-from Lobby.models import Lobby, LobbyPlayer
+from Lobby.models import Lobby
 from Player.models import Player
-from Player.services import create_player
+from Player.services import get_or_create_player
 from Users.models import User
 
 
-def create_lobby(
+def get_or_create_lobby(
     user: User,
-    name: Optional[str],
-    password: Optional[str],
-    starting_money: Optional[int],
+    name: Optional[str] = None,
+    password: Optional[str] = None,
+    starting_money: Optional[int] = None,
 ) -> Tuple[bool, Union[Lobby, str]]:
+    if name:
+        try:
+            lobby = Lobby.objects.get(name=name, created_by=user)
+        except Lobby.DoesNotExist:
+            lobby = Lobby(
+                name=name or generate_random_string(length=10),
+                password=password or generate_random_string(length=10),
+                starting_money=starting_money or 30000,
+                created_by=user,
+            )
+            try:
+                lobby.save()
+            except ValidationError as error:
+                return False, str(error)
 
-    lobby = Lobby(
-        name=name or generate_random_string(length=10),
-        password=password or generate_random_string(length=10),
-        created_by=user,
-    )
-    try:
-        lobby.save()
-    except ValidationError as error:
-        return False, str(error)
+            success, player = get_or_create_player(
+                user=user, lobby=lobby, money=starting_money or 30000
+            )
+            if not success:
+                return success, player
 
-    success, player = create_player(user=user, money=starting_money or 30000)
-    if not success:
-        return success, player
-
-    success, lobby_player = create_lobby_player(lobby=lobby, player=player)
-    if not success:
-        return success, lobby_player
+            return True, lobby
 
     return True, lobby
-
-
-def create_lobby_player(
-    lobby: Lobby, player: Player
-) -> Tuple[bool, Union[str, LobbyPlayer]]:
-    lobby_player = LobbyPlayer(lobby=lobby, player=player)
-    try:
-        lobby_player.save()
-    except ValidationError as error:
-        return False, str(error)
-
-    return True, lobby_player
