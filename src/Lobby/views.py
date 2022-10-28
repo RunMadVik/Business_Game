@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,17 +9,16 @@ from Lobby.services import get_or_create_lobby
 from Player.services.create import get_or_create_player
 
 
-class LobbyList(APIView):
+class GetLobby(APIView):
     """
-    API to create or list a lobby
+    API to list a lobby
     """
 
     class LobbySerializer(serializers.Serializer):
-        name = serializers.CharField(max_length=50, required=False)
-        password = serializers.CharField(max_length=50, required=False)
-        starting_money = serializers.IntegerField(required=False)
+        name = serializers.CharField(max_length=50)
+        password = serializers.CharField(max_length=50)
 
-    def get(self, request, pk: int = None) -> Response:
+    def get(self, request, pk: UUID = None) -> Response:
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         try:
@@ -27,6 +28,18 @@ class LobbyList(APIView):
 
         serializer = self.LobbySerializer(lobby)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class CreateLobby(APIView):
+    """
+    API to create a lobby
+    """
+
+    class LobbySerializer(serializers.Serializer):
+        id = serializers.UUIDField()
+        name = serializers.CharField(max_length=50, required=False)
+        password = serializers.CharField(max_length=50, required=False)
+        starting_money = serializers.IntegerField(required=False)
 
     def post(self, request) -> Response:
         if not request.user.is_authenticated:
@@ -57,7 +70,7 @@ class LobbyPlayerList(APIView):
     API to create a lobby player
     """
 
-    def post(self, request):
+    def post(self, request) -> Response:
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
