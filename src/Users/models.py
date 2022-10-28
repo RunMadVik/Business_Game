@@ -8,6 +8,7 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from django.db import models
+from pytz import timezone
 
 
 class UserManager(BaseUserManager):
@@ -81,7 +82,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.username
 
     def _generate_jwt_token(self):
-        dt = datetime.now() + timedelta(days=30)
+        dt = datetime.now(timezone(settings.TIME_ZONE)) + timedelta(days=5)
 
         token = jwt.encode(
             {"id": self.pk, "exp": dt},
