@@ -4,6 +4,7 @@ from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from authentication import UserAuthentication
 from Lobby.models import Lobby
 from Lobby.services import get_or_create_lobby
 from Player.services.create import get_or_create_player
@@ -14,13 +15,13 @@ class GetLobby(APIView):
     API to list a lobby
     """
 
+    authentication_classes = [UserAuthentication]
+
     class LobbySerializer(serializers.Serializer):
         name = serializers.CharField(max_length=50)
         password = serializers.CharField(max_length=50)
 
     def get(self, request, pk: UUID = None) -> Response:
-        if not request.user.is_authenticated:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
         try:
             lobby = Lobby.objects.get(pk=pk, created_by=request.user)
         except Lobby.DoesNotExist:
@@ -35,6 +36,8 @@ class CreateLobby(APIView):
     API to create a lobby
     """
 
+    authentication_classes = [UserAuthentication]
+
     class LobbySerializer(serializers.Serializer):
         id = serializers.UUIDField()
         name = serializers.CharField(max_length=50, required=False)
@@ -42,11 +45,6 @@ class CreateLobby(APIView):
         starting_money = serializers.IntegerField(required=False)
 
     def post(self, request) -> Response:
-        if not request.user.is_authenticated:
-            return Response(
-                {"Error": "Not an authenticated user"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
         serializer = self.LobbySerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -65,15 +63,14 @@ class CreateLobby(APIView):
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
 
-class LobbyPlayerList(APIView):
+class CreateLobbyPlayer(APIView):
     """
     API to create a lobby player
     """
 
-    def post(self, request) -> Response:
-        if not request.user.is_authenticated:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+    authentication_classes = [UserAuthentication]
 
+    def post(self, request) -> Response:
         lobby_name = request.data.get("name")
         lobby_password = request.data.get("password")
 
