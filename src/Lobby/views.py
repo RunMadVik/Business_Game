@@ -3,7 +3,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Lobby.models import Lobby
-from Lobby.services import create_lobby
+from Lobby.services import get_or_create_lobby
+from Player.services.create import get_or_create_player
 
 
 class LobbyList(APIView):
@@ -30,14 +31,14 @@ class LobbyList(APIView):
     def post(self, request) -> Response:
         if not request.user.is_authenticated:
             return Response(
-                errors={"Error": "Not an authenticated user"},
+                {"Error": "Not an authenticated user"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         serializer = self.LobbySerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         validated_data = serializer.validated_data
-        success, lobby = create_lobby(
+        success, lobby = get_or_create_lobby(
             user=request.user,
             name=validated_data.get("name"),
             password=validated_data.get("password"),
@@ -49,3 +50,30 @@ class LobbyList(APIView):
 
         serializer = self.LobbySerializer(lobby)
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+
+class LobbyPlayerList(APIView):
+    """
+    API to create a lobby player
+    """
+
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        lobby_name = request.data.get("name")
+        lobby_password = request.data.get("password")
+
+        if not lobby_name or not lobby_password:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            lobby = Lobby.objects.get(name=lobby_name, password=lobby_password)
+        except Lobby.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        success, player = get_or_create_player(user=request.user, lobby=lobby)
+        if not success:
+            return Response({"Error": player}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(status=status.HTTP_201_CREATED)
