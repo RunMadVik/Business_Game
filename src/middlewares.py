@@ -24,7 +24,6 @@ def get_user(auth_token: str):
 
 class CustomAuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
-        breakpoint()
         auth_token = request.headers.get("Authorization")
         if auth_token:
             auth, token = auth_token.split(" ")
