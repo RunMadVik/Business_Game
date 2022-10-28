@@ -10,9 +10,9 @@ def get_user(auth_token: str):
     try:
         data = jwt.decode(auth_token, settings.SECRET_KEY, algorithms=["HS256"])
     except jwt.ExpiredSignatureError:
-        raise Exception("Token Signature has expired")
+        return AnonymousUser()
     except jwt.InvalidSignatureError:
-        raise Exception("Token Signature is invalid")
+        return AnonymousUser()
 
     try:
         user = User.objects.get(pk=data["id"])
